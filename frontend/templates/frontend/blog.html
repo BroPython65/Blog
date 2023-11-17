@@ -1,0 +1,48 @@
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+
+
+<div id="main">
+    <div id="container">
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+<!--Script Start there!-->
+<script>
+
+BlogList()
+    
+//blog list start
+function BlogList(){
+    fetch('api/blog-list')
+    .then(resp => resp.json())
+    .then(data => {
+        console.log(data)
+        var container = document.getElementById('container')
+        data.forEach(item => {
+                var itemElement = document.createElement('div');
+                itemElement.id = item.id;
+                itemElement.innerHTML = `
+                    <h3>${item.title}</h3>
+                    <p>${item.content}</p>
+                    <hr>
+                `;
+                container.appendChild(itemElement);
+        })
+    })
+}
+//blog list end
+    
+    
+</script>
+
+{% endblock %}
