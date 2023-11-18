@@ -4,6 +4,7 @@ from .models import Blog
 from .serializers import BlogSerializer
 from rest_framework import status
 
+
 # Create your views here.
 
 class blog_list(generics.ListCreateAPIView):
