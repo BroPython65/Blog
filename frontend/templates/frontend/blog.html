@@ -4,6 +4,8 @@
 
 
 <div id="main">
+    <h1>Welcome to YagamiSite</h1>
+    <hr>
     <div id="container">
     </div>
 </div>
@@ -28,19 +30,51 @@ function BlogList(){
     .then(data => {
         console.log(data)
         var container = document.getElementById('container')
+        //displaying all items
         data.forEach(item => {
                 var itemElement = document.createElement('div');
                 itemElement.id = item.id;
                 itemElement.innerHTML = `
                     <h3>${item.title}</h3>
                     <p>${item.content}</p>
+                    <button class='del'>Delete</button>
                     <hr>
                 `;
                 container.appendChild(itemElement);
+
+                var deleteBtn = itemElement.querySelector('.del')
+                deleteBtn.addEventListener('click', function(){
+                    deleteBlog(item)
+                })
+
         })
+        //end displaying all item
     })
 }
 //blog list end
+
+
+// Function to delete a blog
+function deleteBlog(blog) {
+    fetch(`api/blog-detail/${blog.id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(resp => {
+        if (!resp.ok) {
+            throw new Error(`Failed to delete blog with ID ${blog.id}`);
+        }
+        return resp.text().then(text => text ? JSON.parse(text) : {});
+    })
+    .then(data => {
+        // You can also update the UI by removing the deleted item from the DOM.
+        var deletedItem = document.getElementById(blog.id);
+        deletedItem.remove();
+    })
+}
+//end delete function
     
     
 </script>
