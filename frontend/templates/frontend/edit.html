@@ -1,0 +1,73 @@
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+
+<form id="editForm" method='PUT' action="{% url 'edit' blog.id %}">
+    {% csrf_token %}
+    <label>Title: </label>
+    <input value="{{blog.title}}" id=title name="title" type="text" placeholder="title"/>
+    <br>
+    <label>Content: </label>
+    <textarea id="content" cols="70" rows="20" name="content" placeholder="content">{{blog.content}}</textarea>
+    <br>
+    <input type="submit" value="Update"/>
+</form>
+
+
+<script>
+
+//csrf
+function getCookie(name) {
+		    var cookieValue = null;
+		    if (document.cookie && document.cookie !== '') {
+		        var cookies = document.cookie.split(';');
+		        for (var i = 0; i < cookies.length; i++) {
+		            var cookie = cookies[i].trim();
+		            // Does this cookie string begin with the name we want?
+		            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+		                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+		                break;
+		            }
+		        }
+		    }
+		    return cookieValue;
+		}
+		var csrftoken = getCookie('csrftoken');
+//end csrf
+
+//popup
+document.getElementById('editForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        var title = document.getElementById('title').value;
+        var content = document.getElementById('content').value;
+		var url = `/api/blog-detail/{{id}}`
+        fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Content-type': 'application/json',
+                'X-CSRFToken': csrftoken,
+            },
+            body: JSON.stringify({'title': title, 'content': content}),
+        })
+        .then(function(response) {
+            if (response.ok) {
+                window.close();
+            } else {
+                alert('Failed to update blog');
+            }
+        })
+        .catch(function(error) {
+            console.error('Error:', error);
+        });
+    });
+//end popup
+
+
+
+
+</script>
+
+
+
+{% endblock %}

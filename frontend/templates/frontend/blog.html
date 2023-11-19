@@ -20,32 +20,54 @@
 BlogList()
     
 //blog list start
-function BlogList(){
+function BlogList() {
     fetch('api/blog-list')
-    .then(resp => resp.json())
-    .then(data => {
-        console.log(data)
-        var container = document.getElementById('container')
-        //displaying all items
-        data.forEach(item => {
+        .then(resp => resp.json())
+        .then(data => {
+            console.log(data);
+            var container = document.getElementById('container');
+
+            // Displaying all items
+            data.forEach(item => {
                 var itemElement = document.createElement('div');
                 itemElement.id = item.id;
                 itemElement.innerHTML = `
                     <h3>${item.title}</h3>
                     <p>${item.content}</p>
                     <button class='del'>Delete</button>
+                    <button class='edit'>Edit</button>
                     <hr>
                 `;
                 container.appendChild(itemElement);
 
-                var deleteBtn = itemElement.querySelector('.del')
-                deleteBtn.addEventListener('click', function(){
-                    deleteBlog(item)
-                })
+                var deleteBtn = itemElement.querySelector('.del');
+                deleteBtn.addEventListener('click', function () {
+                    deleteBlog(item);
+                });
 
-        })
-        //end displaying all item
-    })
+                //Edit button
+                var editBtn = itemElement.querySelector('.edit');
+                editBtn.addEventListener('click', function () {
+                    // Open the edit popup window
+                    var editPopup = window.open(`edit/${item.id}`, 'Edit Form', width=500, height=400);
+
+                    // Add an event listener for when the edit popup window is closed
+                    editPopup.addEventListener('beforeunload', function () {
+                        // Call the server to get the updated content for the blog
+                        fetch(`api/blog-detail/${item.id}`)
+                            .then(response => response.json())
+                            .then(updatedBlog => {
+                                // Update the content on the main page
+                                itemElement.querySelector('h3').innerText = updatedBlog.title;
+                                itemElement.querySelector('p').innerText = updatedBlog.content;
+                            })
+                            .catch(error => console.error('Error:', error));
+                    });
+                });
+                //end edit
+            });
+            // End displaying all items
+        });
 }
 //blog list end
 
@@ -71,6 +93,9 @@ function deleteBlog(blog) {
     })
 }
 //end delete function
+
+
+
     
     
 </script>
