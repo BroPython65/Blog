@@ -5,7 +5,17 @@
 
 <div id="main">
     <h1>Welcome to YagamiSite</h1>
+    {% if request.user.is_authenticated %}
+    <a href="{% url 'logout' %}">Logout</a>
+    {% else %}
+    <a href="{% url 'login' %}">Login</a>
+    {% endif %}
+    {% if request.user.is_authenticated %}
     <button id="create-btn"><a href='create/'>Create</a></button>
+    <p>Your Profile: {{user}}</p>
+    {% else %}
+    <p>You are not logined or registered yet</p>
+    {% endif %}
     <hr>
     <div id="container">
     </div>
@@ -16,6 +26,27 @@
 
 <!--Script Start there!-->
 <script>
+
+
+//csrf
+function getCookie(name) {
+		    var cookieValue = null;
+		    if (document.cookie && document.cookie !== '') {
+		        var cookies = document.cookie.split(';');
+		        for (var i = 0; i < cookies.length; i++) {
+		            var cookie = cookies[i].trim();
+		            // Does this cookie string begin with the name we want?
+		            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+		                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+		                break;
+		            }
+		        }
+		    }
+		    return cookieValue;
+		}
+		var csrftoken = getCookie('csrftoken');
+//end csrf
+
 
 BlogList()
     
@@ -31,40 +62,56 @@ function BlogList() {
             data.forEach(item => {
                 var itemElement = document.createElement('div');
                 itemElement.id = item.id;
-                itemElement.innerHTML = `
-                    <h3>${item.title}</h3>
-                    <p>${item.content}</p>
-                    <button class='del'>Delete</button>
-                    <button class='edit'>Edit</button>
-                    <hr>
-                `;
-                container.appendChild(itemElement);
+                host = item.host
+                console.log(host)
+                if (item.host == "{{user}}"){ //start if
+                    itemElement.innerHTML = `
+                        <h3>${item.title}</h3>
+                        <h5>${item.host}</h5>
+                        <p>${item.content}</p>
+                        <button class='del'>Delete</button>
+                        <button class='edit'>Edit</button>
+                        <hr>
+                    `;
+                    container.appendChild(itemElement);
 
-                var deleteBtn = itemElement.querySelector('.del');
-                deleteBtn.addEventListener('click', function () {
-                    deleteBlog(item);
-                });
-
-                //Edit button
-                var editBtn = itemElement.querySelector('.edit');
-                editBtn.addEventListener('click', function () {
-                    // Open the edit popup window
-                    var editPopup = window.open(`edit/${item.id}`, 'Edit Form', width=500, height=400);
-
-                    // Add an event listener for when the edit popup window is closed
-                    editPopup.addEventListener('beforeunload', function () {
-                        // Call the server to get the updated content for the blog
-                        fetch(`api/blog-detail/${item.id}`)
-                            .then(response => response.json())
-                            .then(updatedBlog => {
-                                // Update the content on the main page
-                                itemElement.querySelector('h3').innerText = updatedBlog.title;
-                                itemElement.querySelector('p').innerText = updatedBlog.content;
-                            })
-                            .catch(error => console.error('Error:', error));
+                    var deleteBtn = itemElement.querySelector('.del');
+                    deleteBtn.addEventListener('click', function () {
+                        deleteBlog(item);
                     });
-                });
-                //end edit
+
+                    //Edit button
+                    var editBtn = itemElement.querySelector('.edit');
+                    editBtn.addEventListener('click', function () {
+                        // Open the edit popup window
+                        var editPopup = window.open(`edit/${item.id}`, 'Edit Form', width=500, height=400);
+
+                        // Add an event listener for when the edit popup window is closed
+                        editPopup.addEventListener('beforeunload', function () {
+                            // Call the server to get the updated content for the blog
+                            fetch(`api/blog-detail/${item.id}`)
+                                .then(response => response.json())
+                                .then(updatedBlog => {
+                                    // Update the content on the main page
+                                    itemElement.querySelector('h3').innerText = updatedBlog.title;
+                                    itemElement.querySelector('p').innerText = updatedBlog.content;
+                                })
+                                .catch(error => console.error('Error:', error));
+                        });
+                    });
+                    //end edit
+                }// end if
+                else {
+                    var itemElement = document.createElement('div');
+                    itemElement.innerHTML = `
+                        <h3>${item.title}</h3>
+                        <h5>${item.host}</h5>
+                        <p>${item.content}</p>
+                        <hr>
+                    `;
+                    container.appendChild(itemElement);
+
+                    }//end else
             });
             // End displaying all items
         });
@@ -78,6 +125,7 @@ function deleteBlog(blog) {
         method: 'DELETE',
         headers: {
             'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
         },
     })
     .then(resp => {
