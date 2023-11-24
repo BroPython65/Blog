@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from .forms import BlogPostForm
 from django.urls import reverse
+from django.db.models import Count
 
 # Create your views here.
 
@@ -91,8 +92,8 @@ def logout_page(request):
 
 def user_detail(request, pk):
     user = get_object_or_404(User, username=pk)
-    blog = Blog.objects.filter(host=user)
-    return render(request, 'frontend/user.html', {'blogs':blog, 'user':user})
+    blogs = Blog.objects.filter(host=user).annotate(likes_count=Count('likes'))
+    return render(request, 'frontend/user.html', {'blogs': blogs, 'user': user})
 
 
 #update from user url

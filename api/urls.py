@@ -7,4 +7,5 @@ urlpatterns = [
     path('blog-detail/<int:pk>', blog_detail.as_view() , name='blog-deatil'),
     path('users/', views.UserList.as_view()),
     path('users/<int:pk>/', views.UserDetail.as_view()),
+    path('blog-detail/<int:blog_id>/like', views.like_blog, name='like_blog')
 ]

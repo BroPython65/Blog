@@ -9,6 +9,8 @@
     <div id="{{blog.id}}">
         <h3>{{blog.title}}</h3>
         <p>{{blog.content}}</p>
+        <p>Likes: <span id="like-count-{{blog.id}}">{{blog.likes_count}}</span></p>
+        <button onclick="like_post('{{blog.id}}')" class='like'>Like</button>
         {% if request.user == blog.host %}
             <button><a href="{% url 'update_blog' blog.id %}">Update</a></button>
             <button onclick="confirmDelete('{{blog.title}}', '{{blog.id}}')">Delete</button>
@@ -75,6 +77,24 @@ function deleteBlog(id) {
         var deletedItem = document.getElementById(`${id}`);
         deletedItem.remove();
     })
+}
+
+//like function
+function like_post(item){
+    console.log(item)
+    const likeCount = document.getElementById(`like-count-${item}`)
+    fetch(`/api/blog-detail/${item}/like`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrftoken,
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                likeCount.innerHTML = data.like_count;
+            })
+            .catch(error => console.error('Error:', error));
 }
 
 </script>

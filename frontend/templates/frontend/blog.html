@@ -71,9 +71,16 @@ function BlogList() {
                         <p>${item.content}</p>
                         <button class='del'>Delete</button>
                         <button class='edit'>Edit</button>
+                        <button class='like'>Like</button>
+                        <p>Likes: <span id="like-count-${item.id}">${item.likes_count}</span></p>
                         <hr>
                     `;
                     container.appendChild(itemElement);
+
+                    var likeBtn = itemElement.querySelector('.like')
+                    likeBtn.addEventListener('click', function(){
+                        like_post(item)
+                    })
 
                     var deleteBtn = itemElement.querySelector('.del');
                     deleteBtn.addEventListener('click', function () {
@@ -107,9 +114,16 @@ function BlogList() {
                         <h3>${item.title}</h3>
                         <h5><a href='user/${item.host}'>${item.host}</a></h5>
                         <p>${item.content}</p>
+                        <button class='like'>Like</button>
+                        <p>Likes: <span id="like-count-${item.id}">${item.likes_count}</span></p>
                         <hr>
                     `;
                     container.appendChild(itemElement);
+
+                    var likeBtn = itemElement.querySelector('.like')
+                    likeBtn.addEventListener('click', function(){
+                        like_post(item)
+                    })
 
                     }//end else
             });
@@ -143,7 +157,24 @@ function deleteBlog(blog) {
 //end delete function
 
 
-
+//liking a post
+function like_post(item){
+    console.log(item)
+    const likeCount = document.getElementById(`like-count-${item.id}`)
+    fetch(`/api/blog-detail/${item.id}/like`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        likeCount.innerHTML = data.like_count;
+    })
+    .catch(error => console.error('Error:', error));
+}
+//end liking
     
     
 </script>
