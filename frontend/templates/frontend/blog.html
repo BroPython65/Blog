@@ -67,7 +67,7 @@ function BlogList() {
                 if (item.host == "{{user}}"){ //start if
                     itemElement.innerHTML = `
                         <h3>${item.title}</h3>
-                        <h5>${item.host}</h5>
+                        <h5><a href='user/${item.host}'>${item.host}</a></h5>
                         <p>${item.content}</p>
                         <button class='del'>Delete</button>
                         <button class='edit'>Edit</button>
@@ -84,7 +84,7 @@ function BlogList() {
                     var editBtn = itemElement.querySelector('.edit');
                     editBtn.addEventListener('click', function () {
                         // Open the edit popup window
-                        var editPopup = window.open(`edit/${item.id}`, 'Edit Form', width=500, height=400);
+                        var editPopup = window.open(`/edit/${item.id}`, 'Edit Form', width=500, height=400);
 
                         // Add an event listener for when the edit popup window is closed
                         editPopup.addEventListener('beforeunload', function () {
@@ -105,7 +105,7 @@ function BlogList() {
                     var itemElement = document.createElement('div');
                     itemElement.innerHTML = `
                         <h3>${item.title}</h3>
-                        <h5>${item.host}</h5>
+                        <h5><a href='user/${item.host}'>${item.host}</a></h5>
                         <p>${item.content}</p>
                         <hr>
                     `;

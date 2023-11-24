@@ -2,6 +2,7 @@
 
 {% block content %}
 
+{% if request.user.is_authenticated %}
 <form method="POST" onsubmit="return create()">
     {% csrf_token %}
     <label>Title: </label>
@@ -12,6 +13,9 @@
     <br>
     <input type="submit"/>
 </form>
+{% else %}
+<h1>Autenticate first!!!</h1>
+{% endif %}
 
 
 <script>

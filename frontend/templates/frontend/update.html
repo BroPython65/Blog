@@ -2,7 +2,9 @@
 
 {% block content %}
 
-<form id="editForm" method='PUT' action="{% url 'edit' blog.id %}">
+{% if request.user == user %}
+
+<form id="editForm" method='PUT' action="">
     {% csrf_token %}
     <label>Title: </label>
     <input value="{{blog.title}}" id=title name="title" type="text" placeholder="title"/>
@@ -13,6 +15,11 @@
     <input type="submit" value="Update"/>
 </form>
 
+{% else %}
+
+<h1>Did you try to hack us {{request.user}}? Get the fuck out!</h1>
+
+{% endif %}
 
 <script>
 
@@ -35,7 +42,7 @@ function getCookie(name) {
 		var csrftoken = getCookie('csrftoken');
 //end csrf
 
-//popup
+
 document.getElementById('editForm').addEventListener('submit', function(event) {
         event.preventDefault();
 
@@ -52,7 +59,7 @@ document.getElementById('editForm').addEventListener('submit', function(event) {
         })
         .then(function(response) {
             if (response.ok) {
-                window.close()
+                window.location.href = document.referrer
             } else {
                 alert('Failed to update blog');
             }
@@ -61,7 +68,6 @@ document.getElementById('editForm').addEventListener('submit', function(event) {
             console.error('Error:', error);
         });
     });
-//end popup
 
 
 

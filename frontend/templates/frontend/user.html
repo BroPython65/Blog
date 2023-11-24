@@ -1,0 +1,82 @@
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+
+<div id="main">
+    <h1>This is {{user}}'s profile</h1>
+    <hr>
+    {% for blog in blogs %}
+    <div id="{{blog.id}}">
+        <h3>{{blog.title}}</h3>
+        <p>{{blog.content}}</p>
+        {% if request.user == blog.host %}
+            <button><a href="{% url 'update_blog' blog.id %}">Update</a></button>
+            <button onclick="confirmDelete('{{blog.title}}', '{{blog.id}}')">Delete</button>
+        {% endif %}
+        <hr>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+
+//csrf
+function getCookie(name) {
+		    var cookieValue = null;
+		    if (document.cookie && document.cookie !== '') {
+		        var cookies = document.cookie.split(';');
+		        for (var i = 0; i < cookies.length; i++) {
+		            var cookie = cookies[i].trim();
+		            // Does this cookie string begin with the name we want?
+		            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+		                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+		                break;
+		            }
+		        }
+		    }
+		    return cookieValue;
+		}
+		var csrftoken = getCookie('csrftoken');
+//end csrf
+
+
+//function to ask whether user want to delete item or not
+function confirmDelete(event, id) {
+    // Display a confirmation dialog
+    var isConfirmed = window.confirm(`Are you sure you want to delete "${event}?"`);
+
+    // Check the user's choice
+    if (isConfirmed) {
+        // If OK is clicked, perform delete logic
+        deleteBlog(id);
+    } else {
+        // If Cancel is clicked, you can choose to do nothing or provide feedback
+        console.log("Deletion canceled");
+    }
+}
+
+//delete performing function
+function deleteBlog(id) {
+    fetch(`/api/blog-detail/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': csrftoken,
+        },
+    })
+    .then(resp => {
+        if (!resp.ok) {
+            throw new Error(`Failed to delete blog with ID ${id}`);
+        }
+        return resp.text().then(text => text ? JSON.parse(text) : {});
+    })
+    .then(data => {
+        // You can also update the UI by removing the deleted item from the DOM.
+        var deletedItem = document.getElementById(`${id}`);
+        deletedItem.remove();
+    })
+}
+
+</script>
+
+{% endblock %}
